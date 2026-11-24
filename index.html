@@ -57,7 +57,7 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
 /* ============ CHANGE THESE ============ */
-const VIDEO_ID      = "PASTE_YOUR_VIDEO_ID";   // youtube.com/watch?v=THIS_PART
+const VIDEO_ID      = "zzFDohnmN34";   // youtube.com/watch?v=THIS_PART
 const CHANNEL_TITLE = "Syntax Solver LIVE 24/7";
 /* ======================================= */
 
@@ -82,18 +82,31 @@ function onYouTubeIframeAPIReady(){
 
 function goLive(){
   duration = player.getDuration() || duration;
-  if(!duration) return;
+  if(!duration){ player.playVideo(); return; }   // duration loads after play starts
   player.seekTo(expectedPos(), true);
   player.playVideo();
 }
 
-document.getElementById("join").addEventListener("click",()=>{
-  if(!player || !player.getDuration) return;
+function joinLive(){
+  if(!player || !player.playVideo){ alert("Player still loading, 2 sec lo malli tap cheyyi"); return; }
   started = true;
   player.unMute(); player.setVolume(100);
-  goLive();
+  player.playVideo();                              // must be called inside the click (browser rule)
   document.getElementById("join").classList.add("hide");
-});
+  // wait until YouTube reports duration, then jump to the live position
+  let tries = 0;
+  const t = setInterval(()=>{
+    const d = player.getDuration();
+    if(d > 0){ duration = d; clearInterval(t); player.seekTo(expectedPos(), true); player.playVideo(); }
+    else if(++tries > 40) clearInterval(t);
+  }, 250);
+}
+document.getElementById("join").addEventListener("click", joinLive);
+document.getElementById("join").addEventListener("touchend", e=>{ e.preventDefault(); joinLive(); });
+
+if(location.protocol === "file:"){
+  document.querySelector(".sub").textContent = "⚠ Open via GitHub Pages / localhost (file:// lo YouTube embed work cheyyadu)";
+}
 
 // drift correction: keep everyone in sync with the "live" clock
 setInterval(()=>{
