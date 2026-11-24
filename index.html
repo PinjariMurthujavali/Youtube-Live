@@ -59,9 +59,13 @@
 /* ============ CHANGE THESE ============ */
 const VIDEO_ID      = "zzFDohnmN34";   // youtube.com/watch?v=THIS_PART
 const CHANNEL_TITLE = "Syntax Solver LIVE 24/7";
+const CHANNEL_ID    = "UCJ0fUTcZIehG4xwD6PZqDUA";
+// false = website-only synced "live" (works right now, no server)
+// true  = embeds your REAL YouTube live stream (set true AFTER setup-live.sh is running & stream is live)
+const USE_REAL_LIVE = false;
 /* ======================================= */
 
-document.getElementById("title").textContent = SYNTAX SOLVER;
+document.getElementById("title").textContent = CHANNEL_TITLE;
 let player, duration = 0, started = false;
 
 function expectedPos(){ return duration ? (Date.now()/1000) % duration : 0; }
@@ -88,6 +92,15 @@ function goLive(){
 }
 
 function joinLive(){
+  if(USE_REAL_LIVE){
+    // embeds whatever is currently LIVE on the channel (uses CHANNEL_ID)
+    document.getElementById("player").innerHTML =
+      '<iframe src="https://www.youtube.com/embed/live_stream?channel='+CHANNEL_ID+'&autoplay=1&rel=0" '+
+      'allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen style="border:0"></iframe>';
+    document.querySelector(".shield").remove();
+    document.getElementById("join").classList.add("hide");
+    return;
+  }
   if(!player || !player.playVideo){ alert("Player still loading, 2 sec lo malli tap cheyyi"); return; }
   started = true;
   player.unMute(); player.setVolume(100);
